@@ -15,6 +15,7 @@
       </div>
     </div>
     <button @click="startVisualizer()">start</button>
+    <button @click="resetVisualizer()">reset</button>
   </div>
 </template>
 
@@ -76,8 +77,8 @@ export default {
         y: (this.height - 1) / 2,
       }
       this.endNodePosition = {
-        x: this.width - 40,
-        y: (this.height - 1) / 2,
+        x: this.width - 50,
+        y: (this.height - 1) / 2 + 4,
       }
 
       for (let y = 0; y < this.height; y++) {
@@ -164,9 +165,101 @@ export default {
       return false
     },
     getShortestPath () {
-      const x = this.endNodePosition.x
-      const y = this.endNodePosition.y
-      console.log(this.table[y][x])
+      let x = this.endNodePosition.x
+      let y = this.endNodePosition.y
+      let currentDistance = this.table[y][x].distance
+      let stateya123 = 0
+      while (stateya123 < 1000) {
+        if (
+          y - 1 !== -1 &&
+          !this.table[y - 1][x].isWall &&
+          this.table[y - 1][x].distance == currentDistance - 1
+        ) {
+          this.shortestPath.unshift({
+            x: x,
+            y: y - 1
+          })
+
+          if (this.table[y - 1][x].isStart) {
+            break
+          }
+
+          currentDistance = this.table[y - 1][x].distance
+          y = y - 1
+
+        }
+        else if (
+          y + 1 !== this.height &&
+          !this.table[y + 1][x].isWall &&
+          this.table[y + 1][x].distance == currentDistance - 1
+        ) {
+          this.shortestPath.unshift({
+            x: x,
+            y: y + 1
+          })
+
+          if (this.table[y + 1][x].isStart) {
+            break
+          }
+
+          currentDistance = this.table[y + 1][x].distance
+          y = y + 1
+
+        }
+        else if (
+          x - 1 !== -1 &&
+          !this.table[y][x - 1].isWall &&
+          this.table[y][x - 1].distance == currentDistance - 1
+        ) {
+          this.shortestPath.unshift({
+            x: x - 1,
+            y: y
+          })
+
+          if (this.table[y][x - 1].isStart) {
+            break
+          }
+
+          currentDistance = this.table[y][x - 1].distance
+          x = x - 1
+
+        }
+        else if (
+          x + 1 !== this.width &&
+          !this.table[y][x + 1].isWall &&
+          this.table[y][x + 1].distance == currentDistance - 1
+        ) {
+          this.shortestPath.unshift({
+            x: x + 1,
+            y: y
+          })
+
+          if (this.table[y][x - 1].isStart) {
+            break
+          }
+
+          currentDistance = this.table[y][x + 1].distance
+          x = x + 1
+
+        }
+        stateya123++
+      }
+      if (this.shortestPath.length > 0) {
+        this.visualizePath()
+      }
+    },
+    visualizePath () {
+      let indexPath = 0
+      this.shortestPath.shift()
+      const intervalPath = setInterval(() => {
+        const x = this.shortestPath[indexPath].x
+        const y = this.shortestPath[indexPath].y
+        this.table[y][x].isRoad = true
+        indexPath++
+        if (indexPath === this.shortestPath.length) {
+          clearInterval(intervalPath)
+        }
+      }, 40)
     },
     startVisualizer () {
       let shortestDistance = 1
@@ -197,6 +290,10 @@ export default {
         }
       }, 5)
     },
+    resetVisualizer () {
+      this.shortestPath = []
+      this.tableInit()
+    }
   },
   created () {
     this.tableInit()

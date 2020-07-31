@@ -1,6 +1,6 @@
 <template>
   <div :class="nodeClass">
-    <div v-if="nodeProperty.distance !== 10000">{{nodeProperty.distance}}</div>
+    <!-- <div v-if="nodeProperty.distance !== 10000">{{nodeProperty.distance}}</div> -->
   </div>
 </template>
 
