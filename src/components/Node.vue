@@ -1,5 +1,6 @@
 <template>
   <div :class="nodeClass">
+    <div v-if="nodeProperty.distance !== 10000">{{nodeProperty.distance}}</div>
   </div>
 </template>
 
@@ -19,6 +20,7 @@ export default {
         visited: visited,
         'start-node': this.nodeProperty.isStart,
         'end-node': this.nodeProperty.isEnd,
+        'road-node': this.nodeProperty.isRoad
       }
     }
   }
@@ -32,11 +34,22 @@ export default {
   border: 1px solid rgb(175, 216, 248);
 }
 
+.visited {
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgb(175, 216, 248);
+  background-color: greenyellow;
+}
+
 .start-node {
   background-color: blue;
 }
 
 .end-node {
   background-color: red;
+}
+
+.road-node {
+  background-color: yellow;
 }
 </style>
