@@ -1,6 +1,8 @@
 <template>
-  <div :class="nodeClass">
-    <!-- <div v-if="nodeProperty.distance !== 10000">{{nodeProperty.distance}}</div> -->
+  <div
+    :class="nodeClass"
+    @mouseover="mouseOver()"
+  >
   </div>
 </template>
 
@@ -8,7 +10,16 @@
 export default {
   name: 'Node',
   props: {
-    nodeProperty: Object
+    nodeProperty: Object,
+    isMouseDown: Boolean
+  },
+  methods: {
+    mouseOver () {
+      if (this.isMouseDown && !this.nodeProperty.isEnd && !this.nodeProperty.isStart) {
+        console.log(this.nodeProperty.isStart)
+        this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
+      }
+    }
   },
   computed: {
     nodeClass () {
@@ -20,7 +31,8 @@ export default {
         visited: visited,
         'start-node': this.nodeProperty.isStart,
         'end-node': this.nodeProperty.isEnd,
-        'road-node': this.nodeProperty.isRoad
+        'road-node': this.nodeProperty.isRoad,
+        'wall': this.nodeProperty.isWall
       }
     }
   }
@@ -51,5 +63,12 @@ export default {
 
 .road-node {
   background-color: yellow;
+}
+
+.wall {
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgb(175, 216, 248);
+  background-color: blueviolet;
 }
 </style>

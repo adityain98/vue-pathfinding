@@ -5,11 +5,15 @@
         v-for="(vertical, i) in table"
         :key="`vertical-${i}`"
         class="vertical-nodes"
+        @mousedown="mouseDown()"
+        @mouseup="mouseUp()"
       >
         <Node
           v-for="horizontal in vertical"
           :key="horizontal.id"
           :node-property="horizontal"
+          :is-mouse-down="isMouseDown"
+          @toggleWall="toggleWall"
           class="horizontal-nodes"
         />
       </div>
@@ -64,7 +68,8 @@ export default {
         x: 0,
         y: 0
       },
-      shortestPath: []
+      shortestPath: [],
+      isMouseDown: false
     }
   },
   methods: {
@@ -77,7 +82,7 @@ export default {
         y: (this.height - 1) / 2,
       }
       this.endNodePosition = {
-        x: this.width - 50,
+        x: this.width - 20,
         y: (this.height - 1) / 2 + 4,
       }
 
@@ -97,10 +102,10 @@ export default {
             //? if near node
             const newBaseNode = { ...this.baseNode }
             newBaseNode.distance = 1
-            arrTable2.push({ ...newBaseNode, id })
+            arrTable2.push({ ...newBaseNode, id, x, y })
           }
           else {
-            arrTable2.push({ ...this.baseNode, id })
+            arrTable2.push({ ...this.baseNode, id, x, y })
           }
         }
         arrTable.push([...arrTable2])
@@ -293,6 +298,15 @@ export default {
     resetVisualizer () {
       this.shortestPath = []
       this.tableInit()
+    },
+    mouseDown () {
+      this.isMouseDown = true
+    },
+    mouseUp () {
+      this.isMouseDown = false
+    },
+    toggleWall (x, y) {
+      this.$set(this.table[y][x], 'isWall', !this.table[y][x].isWall)
     }
   },
   created () {
