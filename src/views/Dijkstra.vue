@@ -20,9 +20,6 @@
         />
       </div>
     </div>
-    <button @click="startVisualizer()">start</button>
-    <button @click="resetVisualizer()">reset</button>
-    <button @click="resetVisited()">start again</button>
     <div>{{errorMessage}}</div>
   </div>
 </template>
