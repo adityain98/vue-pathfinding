@@ -2,6 +2,7 @@
   <div
     :class="nodeClass"
     @mouseover="mouseOver()"
+    @click="toggleWall()"
   >
   </div>
 </template>
@@ -16,8 +17,11 @@ export default {
   methods: {
     mouseOver () {
       if (this.isMouseDown && !this.nodeProperty.isEnd && !this.nodeProperty.isStart) {
-        this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
+        this.toggleWall()
       }
+    },
+    toggleWall () {
+      this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
     }
   },
   computed: {

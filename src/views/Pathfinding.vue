@@ -20,6 +20,7 @@
     </div>
     <button @click="startVisualizer()">start</button>
     <button @click="resetVisualizer()">reset</button>
+    <div>{{errorMessage}}</div>
   </div>
 </template>
 
@@ -69,7 +70,8 @@ export default {
         y: 0
       },
       shortestPath: [],
-      isMouseDown: false
+      isMouseDown: false,
+      errorMessage: ''
     }
   },
   methods: {
@@ -268,6 +270,7 @@ export default {
     },
     startVisualizer () {
       let shortestDistance = 1
+      let isPathNotFound = false
       const intervalVisualizaton = setInterval(() => {
         let isFound = false
         for (let y = 0; y < this.height; y++) {
@@ -287,17 +290,24 @@ export default {
               this.table[y][x].isVisited = true
               this.setDistanceNearNode(x, y, this.table[y][x].distance)
               isFound = true
+              isPathNotFound = false
             }
           }
         }
         if (!isFound) {
+          if (isPathNotFound) {
+            clearInterval(intervalVisualizaton)
+            this.errorMessage = 'Path not found'
+          }
           shortestDistance++
+          isPathNotFound = true
         }
       }, 5)
     },
     resetVisualizer () {
       this.shortestPath = []
       this.tableInit()
+      this.errorMessage = ''
     },
     mouseDown () {
       this.isMouseDown = true
