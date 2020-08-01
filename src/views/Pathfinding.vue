@@ -35,7 +35,7 @@ export default {
   data () {
     return {
       table: [],
-      width: 70,
+      width: 60,
       height: 31,
       baseNode: {
         isWall: false,

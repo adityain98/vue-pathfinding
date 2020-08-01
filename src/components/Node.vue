@@ -2,8 +2,18 @@
   <div
     :class="nodeClass"
     @mouseover="mouseOver()"
-    @click="toggleWall()"
+    @mousedown="toggleWall()"
   >
+    <div
+      v-if="nodeProperty.isRoad"
+      class="road-node"
+    >
+    </div>
+    <div
+      v-else-if="nodeProperty.isVisited"
+      class="visited"
+    >
+    </div>
   </div>
 </template>
 
@@ -16,12 +26,14 @@ export default {
   },
   methods: {
     mouseOver () {
-      if (this.isMouseDown && !this.nodeProperty.isEnd && !this.nodeProperty.isStart) {
+      if (this.isMouseDown) {
         this.toggleWall()
       }
     },
     toggleWall () {
-      this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
+      if (!this.nodeProperty.isEnd && !this.nodeProperty.isStart) {
+        this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
+      }
     }
   },
   computed: {
@@ -31,10 +43,10 @@ export default {
 
       return {
         unvisited: unvisited,
-        visited: visited,
+        // visited: visited,
         'start-node': this.nodeProperty.isStart,
         'end-node': this.nodeProperty.isEnd,
-        'road-node': this.nodeProperty.isRoad,
+        // 'road-node': this.nodeProperty.isRoad,
         'wall': this.nodeProperty.isWall
       }
     }
@@ -54,6 +66,8 @@ export default {
   height: 20px;
   border: 1px solid rgb(175, 216, 248);
   background-color: greenyellow;
+  animation-name: animate-visited;
+  animation-duration: 0.5s;
 }
 
 .start-node {
@@ -65,7 +79,12 @@ export default {
 }
 
 .road-node {
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgb(175, 216, 248);
   background-color: yellow;
+  animation-name: animate-road;
+  animation-duration: 0.5s;
 }
 
 .wall {
@@ -73,5 +92,23 @@ export default {
   height: 20px;
   border: 1px solid rgb(175, 216, 248);
   background-color: blueviolet;
+}
+
+@keyframes animate-visited {
+  from {
+    background-color: teal;
+  }
+  to {
+    background-color: greenyellow;
+  }
+}
+
+@keyframes animate-road {
+  from {
+    background-color: brown;
+  }
+  to {
+    background-color: yellow;
+  }
 }
 </style>
