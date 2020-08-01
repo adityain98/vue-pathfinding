@@ -2,18 +2,36 @@
   <div
     :class="nodeClass"
     @mouseover="mouseOver()"
-    @mousedown="toggleWall()"
+    @mousedown="toggleWall"
+    @dragenter="dragEnter()"
+    @dragstart="dragStart()"
   >
     <div
-      v-if="nodeProperty.isRoad"
-      class="road-node"
+      v-if="nodeProperty.isEnd"
+      class="end-node"
     >
+      <img
+        src="../assets/end-moon.jpg"
+        style="width: 100%"
+      >
     </div>
+    <div
+      v-else-if="nodeProperty.isStart"
+      class="start-node"
+    >
+      <img
+        src="../assets/start-rocket.png"
+        style="width: 100%"
+      >
+    </div>
+    <div
+      v-else-if="nodeProperty.isRoad"
+      class="road-node"
+    ></div>
     <div
       v-else-if="nodeProperty.isVisited"
       class="visited"
-    >
-    </div>
+    ></div>
   </div>
 </template>
 
@@ -22,18 +40,27 @@ export default {
   name: 'Node',
   props: {
     nodeProperty: Object,
-    isMouseDown: Boolean
+    isMouseDown: Boolean,
+    currentDraggedCoordinate: Object
   },
   methods: {
     mouseOver () {
       if (this.isMouseDown) {
-        this.toggleWall()
+        if (!this.nodeProperty.isEnd && !this.nodeProperty.isStart) {
+          this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
+        }
       }
     },
-    toggleWall () {
-      if (!this.nodeProperty.isEnd && !this.nodeProperty.isStart) {
+    toggleWall (e) {
+      if (!this.nodeProperty.isEnd && !this.nodeProperty.isStart && e.which === 1) {
         this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
       }
+    },
+    dragEnter () {
+      this.$emit('moveNode', this.nodeProperty)
+    },
+    dragStart () {
+      this.$emit('startDragNode', this.nodeProperty)
     }
   },
   computed: {
@@ -44,8 +71,8 @@ export default {
       return {
         unvisited: unvisited,
         // visited: visited,
-        'start-node': this.nodeProperty.isStart,
-        'end-node': this.nodeProperty.isEnd,
+        // 'start-node': this.nodeProperty.isStart,
+        // 'end-node': this.nodeProperty.isEnd,
         // 'road-node': this.nodeProperty.isRoad,
         'wall': this.nodeProperty.isWall
       }
@@ -71,11 +98,13 @@ export default {
 }
 
 .start-node {
-  background-color: blue;
+  width: 20px;
+  height: 20px;
 }
 
 .end-node {
-  background-color: red;
+  width: 20px;
+  height: 20px;
 }
 
 .road-node {
@@ -95,10 +124,13 @@ export default {
 }
 
 @keyframes animate-visited {
-  from {
+  0% {
+    background-color: white;
+  }
+  25% {
     background-color: teal;
   }
-  to {
+  100% {
     background-color: greenyellow;
   }
 }

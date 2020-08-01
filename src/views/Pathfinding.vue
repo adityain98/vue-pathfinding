@@ -5,7 +5,7 @@
         v-for="(vertical, i) in table"
         :key="`vertical-${i}`"
         class="vertical-nodes"
-        @mousedown="mouseDown()"
+        @mousedown="mouseDown"
         @mouseup="mouseUp()"
       >
         <Node
@@ -14,12 +14,15 @@
           :node-property="horizontal"
           :is-mouse-down="isMouseDown"
           @toggleWall="toggleWall"
+          @moveNode="moveNode"
+          @startDragNode="startDragNode"
           class="horizontal-nodes"
         />
       </div>
     </div>
     <button @click="startVisualizer()">start</button>
     <button @click="resetVisualizer()">reset</button>
+    <button @click="resetVisited()">start again</button>
     <div>{{errorMessage}}</div>
   </div>
 </template>
@@ -71,7 +74,8 @@ export default {
       },
       shortestPath: [],
       isMouseDown: false,
-      errorMessage: ''
+      errorMessage: '',
+      draggedNode: ''
     }
   },
   methods: {
@@ -84,7 +88,7 @@ export default {
         y: (this.height - 1) / 2,
       }
       this.endNodePosition = {
-        x: this.width - 20,
+        x: this.width - 10,
         y: (this.height - 1) / 2 + 4,
       }
 
@@ -95,10 +99,10 @@ export default {
           id++
 
           if (y === this.startNodePosition.y && x === this.startNodePosition.x) {
-            arrTable2.push({ ...this.startNode, id })
+            arrTable2.push({ ...this.startNode, id, x, y })
           }
           else if (y === this.endNodePosition.y && x === this.endNodePosition.x) {
-            arrTable2.push({ ...this.endNode, id })
+            arrTable2.push({ ...this.endNode, id, x, y })
           }
           else if (this.isNearStartNode(x, y)) {
             //? if near node
@@ -257,21 +261,22 @@ export default {
     },
     visualizePath () {
       let indexPath = 0
-      this.shortestPath.shift()
-      const intervalPath = setInterval(() => {
-        const x = this.shortestPath[indexPath].x
-        const y = this.shortestPath[indexPath].y
-        this.table[y][x].isRoad = true
-        indexPath++
-        if (indexPath === this.shortestPath.length) {
-          clearInterval(intervalPath)
-        }
-      }, 40)
+      if (this.shortestPath.length > 0) {
+        const intervalVisualizePath = setInterval(() => {
+          const x = this.shortestPath[indexPath].x
+          const y = this.shortestPath[indexPath].y
+          this.table[y][x].isRoad = true
+          indexPath++
+          if (indexPath === this.shortestPath.length) {
+            clearInterval(intervalVisualizePath)
+          }
+        }, 40)
+      }
     },
     startVisualizer () {
       let shortestDistance = 1
       let isPathNotFound = false
-      const intervalVisualizaton = setInterval(() => {
+      const startIntervalVisualizer = setInterval(() => {
         let isFound = false
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -283,9 +288,9 @@ export default {
               this.table[y][x].distance === shortestDistance
             ) {
               if (this.checkTheEnd(x, y)) {
-                clearInterval(intervalVisualizaton)
                 this.getShortestPath()
-                break
+                clearInterval(startIntervalVisualizer)
+                return true
               }
               this.table[y][x].isVisited = true
               this.setDistanceNearNode(x, y, this.table[y][x].distance)
@@ -296,8 +301,8 @@ export default {
         }
         if (!isFound) {
           if (isPathNotFound) {
-            clearInterval(intervalVisualizaton)
             this.errorMessage = 'Path not found'
+            clearInterval(startIntervalVisualizer)
           }
           shortestDistance++
           isPathNotFound = true
@@ -309,14 +314,70 @@ export default {
       this.tableInit()
       this.errorMessage = ''
     },
-    mouseDown () {
-      this.isMouseDown = true
+    mouseDown (e) {
+      if (e.which === 1) {
+        this.isMouseDown = true
+      }
     },
     mouseUp () {
       this.isMouseDown = false
     },
     toggleWall (x, y) {
       this.$set(this.table[y][x], 'isWall', !this.table[y][x].isWall)
+    },
+    startDragNode (node) {
+      if (node.isEnd) {
+        this.draggedNode = 'end'
+      }
+      else {
+        this.draggedNode = 'start'
+      }
+      this.isMouseDown = false
+    },
+    moveNode (node) {
+      if (this.draggedNode === 'end') {
+        this.table.forEach(vertical => {
+          vertical.forEach(horizontal => {
+            horizontal.isEnd = false
+          })
+        })
+        this.endNodePosition = {
+          x: node.x,
+          y: node.y
+        }
+        this.table[node.y][node.x].isEnd = true
+      }
+      else {
+        this.table.forEach(vertical => {
+          vertical.forEach(horizontal => {
+            horizontal.isStart = false
+          })
+        })
+        this.startNodePosition = {
+          x: node.x,
+          y: node.y
+        }
+        this.table[node.y][node.x].isStart = true
+      }
+      this.table[node.y][node.x].isWall = false
+      this.resetVisited()
+    },
+    resetVisited () {
+      this.shortestPath = []
+      this.table.forEach((vertical, y) => {
+        vertical.forEach((horizontal, x) => {
+          horizontal.isVisited = false
+          horizontal.isRoad = false
+          if (!horizontal.isStart) {
+            horizontal.distance = 10000
+          }
+          if (this.isNearStartNode(x, y)) {
+            //? if near node
+            const newBaseNode = { ...this.baseNode }
+            horizontal.distance = 1
+          }
+        })
+      })
     }
   },
   created () {

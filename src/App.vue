@@ -16,4 +16,13 @@ export default {
 </script>
 
 <style>
+::-moz-selection {
+  background-color: transparent;
+  color: #000;
+}
+
+::selection {
+  background-color: transparent;
+  color: #000;
+}
 </style>
