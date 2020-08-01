@@ -16,7 +16,6 @@ export default {
   methods: {
     mouseOver () {
       if (this.isMouseDown && !this.nodeProperty.isEnd && !this.nodeProperty.isStart) {
-        console.log(this.nodeProperty.isStart)
         this.$emit('toggleWall', this.nodeProperty.x, this.nodeProperty.y)
       }
     }
